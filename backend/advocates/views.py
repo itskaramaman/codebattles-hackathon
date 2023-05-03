@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from .models import Advocate
+from .serializers import AdvocateSerializer
 
 @api_view(['GET'])
 def endpoints(request):
@@ -14,10 +15,17 @@ def home(request):
     return HttpResponse('<h1>Home</h1>')
 
 
+@api_view(['GET'])
 def advocates_list(request):
     data = Advocate.objects.all()
-    return Response(data, safe=False)
+    serializer = AdvocateSerializer(data, many=True)
+    return Response(serializer.data)
 
+
+@api_view(['GET'])
 def advocate_detail(request, username):
-    data = {"name": username}
-    return Response(data)
+    advocate = Advocate.objects.filter(
+                    username=username
+                ).first()
+    serializer = AdvocateSerializer(advocate)
+    return Response(serializer.data)
