@@ -1,10 +1,12 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.db.models import Q
 
-from .models import Advocate
-from .serializers import AdvocateSerializer
+from .models import Advocate, Company
+from .serializers import AdvocateSerializer, CompanySerializer
+
 
 @api_view(['GET'])
 def endpoints(request):
@@ -13,6 +15,7 @@ def endpoints(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def advocates_list(request):
     # Handles Get request
     if request.method == 'GET':
@@ -67,4 +70,11 @@ class AdvocateDetail(APIView):
         advocate = self.get_object(username)
         advocate.delete()
         return Response('user was deleted')
+    
+@api_view(['GET'])
+def company_list(request):
+    companies = Company.objects.all()
+    serializer = CompanySerializer(companies, many=True)
+    return Response(serializer.data)
+    
     
